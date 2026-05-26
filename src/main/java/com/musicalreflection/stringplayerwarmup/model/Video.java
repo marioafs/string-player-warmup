@@ -17,6 +17,8 @@ public class Video {
     private Long id;
 
     private String youtubeId;
+    private String title;
+    private String objective;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -27,8 +29,10 @@ public class Video {
     public Video() {
     }
 
-    public Video(String youtubeId, Category category) {
+    public Video(String youtubeId, String title, String objective, Category category) {
         this.youtubeId = youtubeId;
+        this.title = title;
+        this.objective = objective;
         this.category = category;
     }
 
@@ -56,4 +60,21 @@ public class Video {
     public void setCategory(Category category) {
         this.category = category;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getObjective() {
+        return objective;
+    }
+
+    public void setObjective(String objective) {
+        this.objective = objective;
+    }
+
 }
