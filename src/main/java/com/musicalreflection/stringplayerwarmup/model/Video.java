@@ -36,7 +36,7 @@ public class Video {
         this.category = category;
     }
 
-    // --- Getters and Setters ---
+    // Getters and Setters
     public Long getId() {
         return id;
     }
