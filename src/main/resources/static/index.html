@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Player Warmup</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        
+        <div id="screen-start" class="screen">
+            <h1 data-i18n="ui.title"></h1>
+            <p data-i18n="ui.subtitle"></p>
+            <div class="nav-buttons">
+                <button id="btn-to-instructions" data-i18n="ui.btn.start"></button>
+            </div>
+        </div>
+
+        <div id="screen-instructions" class="screen">
+            <h2 data-i18n="ui.instruction.title"></h2>
+            <ul>
+                <li data-i18n="ui.instruction.1"></li>
+                <li data-i18n="ui.instruction.2"></li>
+                <li data-i18n="ui.instruction.3"></li>
+            </ul>
+            <div class="nav-buttons">
+                <button id="btn-back-to-start" class="btn-secondary" data-i18n="ui.btn.back"></button>
+                <button id="btn-to-overview" data-i18n="ui.btn.next"></button>
+            </div>
+        </div>
+
+        <div id="screen-overview" class="screen">
+            <h2 data-i18n="ui.daily.title"></h2>
+            <div id="overview-grid" class="overview-grid">
+                </div>
+            <div class="nav-buttons">
+                <button id="btn-back-to-instructions" class="btn-secondary" data-i18n="ui.btn.back"></button>
+                <button id="btn-start-routine" data-i18n="ui.btn.begin"></button>
+            </div>
+        </div>
+
+        <div id="screen-routine" class="screen">
+            <h2 id="category-title"></h2>
+            
+            <div id="video-container" class="size-medium">
+                <iframe id="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+
+            <div id="info-panel" class="info-panel">
+                <h3 id="video-title"></h3>
+                <p id="action-label" data-i18n="ui.action.prepare"></p>
+                <p id="video-objective"></p>
+            </div>
+
+            <div class="timer-container">
+                <p id="phase-indicator" class="pulsing"></p>
+                <h1 id="timer-display"></h1>
+            </div>
+
+            <p id="motivational-phrase" class="phrase"></p>
+        </div>
+
+        <div id="screen-end" class="screen">
+            <h2 data-i18n="ui.end.title"></h2>
+            <p class="congrats" data-i18n="ui.end.congrats"></p>
+            <div class="nav-buttons">
+                <button id="btn-repeat" data-i18n="ui.btn.repeat"></button>
+                <button id="btn-exit" class="btn-danger" data-i18n="ui.btn.exit"></button>
+            </div>
+        </div>
+
+        <audio id="ambient-audio">
+            <source src="audio/background-music.wav" type="audio/wav">
+            Your browser does not support HTML5 audio.
+        </audio>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

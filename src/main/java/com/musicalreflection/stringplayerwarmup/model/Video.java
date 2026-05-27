@@ -17,26 +17,36 @@ public class Video {
     private Long id;
 
     private String youtubeId;
-    private String title;
-    private String objective;
+    
+    // Title
+    private String titleEn;
+    private String titlePt;
+    private String titleEs;
+    
+    // Objetive
+    private String objectiveEn;
+    private String objectivePt;
+    private String objectiveEs;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    // Constructors
-    
     public Video() {
     }
 
-    public Video(String youtubeId, String title, String objective, Category category) {
+    public Video(String youtubeId, String titleEn, String titlePt, String titleEs, 
+                 String objectiveEn, String objectivePt, String objectiveEs, Category category) {
         this.youtubeId = youtubeId;
-        this.title = title;
-        this.objective = objective;
+        this.titleEn = titleEn;
+        this.titlePt = titlePt;
+        this.titleEs = titleEs;
+        this.objectiveEn = objectiveEn;
+        this.objectivePt = objectivePt;
+        this.objectiveEs = objectiveEs;
         this.category = category;
     }
 
-    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }
@@ -53,28 +63,60 @@ public class Video {
         this.youtubeId = youtubeId;
     }
 
+    public String getTitleEn() {
+        return titleEn;
+    }
+
+    public void setTitleEn(String titleEn) {
+        this.titleEn = titleEn;
+    }
+
+    public String getTitlePt() {
+        return titlePt;
+    }
+
+    public void setTitlePt(String titlePt) {
+        this.titlePt = titlePt;
+    }
+
+    public String getTitleEs() {
+        return titleEs;
+    }
+
+    public void setTitleEs(String titleEs) {
+        this.titleEs = titleEs;
+    }
+
+    public String getObjectiveEn() {
+        return objectiveEn;
+    }
+
+    public void setObjectiveEn(String objectiveEn) {
+        this.objectiveEn = objectiveEn;
+    }
+
+    public String getObjectivePt() {
+        return objectivePt;
+    }
+
+    public void setObjectivePt(String objectivePt) {
+        this.objectivePt = objectivePt;
+    }
+
+    public String getObjectiveEs() {
+        return objectiveEs;
+    }
+
+    public void setObjectiveEs(String objectiveEs) {
+        this.objectiveEs = objectiveEs;
+    }
+
     public Category getCategory() {
         return category;
     }
 
     public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getObjective() {
-        return objective;
-    }
-
-    public void setObjective(String objective) {
-        this.objective = objective;
     }
 
 }
