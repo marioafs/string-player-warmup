@@ -39,11 +39,11 @@ public class WarmupService {
         for (Category cat : categories) {
             videoRepository.findRandomVideoByCategoryId(cat.getId()).ifPresent(video -> {
                 routineList.add(new CategoryRoutineDTO(
-                        cat.getName(),
+                        getCategoryName(cat, lang), 
                         cat.getPresentationOrder(),
                         video.getYoutubeId(),
-                        video.getTitle(),
-                        video.getObjective()
+                        getVideoTitle(video, lang),       
+                        getVideoObjective(video, lang) 
                 ));
             });
         }
@@ -62,6 +62,33 @@ public class WarmupService {
             case "pt" -> phrase.getTextPt();
             case "es" -> phrase.getTextEs();
             default -> phrase.getTextEn();
+        };
+    }
+
+    private String getCategoryName(Category cat, String lang) {
+        if (lang == null) return cat.getNameEn();
+        return switch (lang.toLowerCase()) {
+            case "pt" -> cat.getNamePt();
+            case "es" -> cat.getNameEs();
+            default -> cat.getNameEn();
+        };
+    }
+
+    private String getVideoTitle(Video video, String lang) {
+        if (lang == null) return video.getTitleEn();
+        return switch (lang.toLowerCase()) {
+            case "pt" -> video.getTitlePt();
+            case "es" -> video.getTitleEs();
+            default -> video.getTitleEn();
+        };
+    }
+
+    private String getVideoObjective(Video video, String lang) {
+        if (lang == null) return video.getObjectiveEn();
+        return switch (lang.toLowerCase()) {
+            case "pt" -> video.getObjectivePt();
+            case "es" -> video.getObjectiveEs();
+            default -> video.getObjectiveEn();
         };
     }
 }

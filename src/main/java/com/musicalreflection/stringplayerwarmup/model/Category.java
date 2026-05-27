@@ -15,18 +15,22 @@ public class Category {
     private Long id;
 
     private Integer presentationOrder;
-    private String name;
+
+    private String nameEn;
+    private String namePt;
+    private String nameEs;
 
     public Category() {
     }
 
-    public Category(Integer presentationOrder, String name) {
+    public Category(Integer presentationOrder, String nameEn, String namePt, String nameEs) {
         this.presentationOrder = presentationOrder;
-        this.name = name;
+        this.nameEn = nameEn;
+        this.namePt = namePt;
+        this.nameEs = nameEs;
     }
 
     // Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -43,12 +47,27 @@ public class Category {
         this.presentationOrder = presentationOrder;
     }
 
-    public String getName() {
-        return name;
+    public String getNameEn() {
+        return nameEn;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
     }
-    
+
+    public String getNamePt() {
+        return namePt;
+    }
+
+    public void setNamePt(String namePt) {
+        this.namePt = namePt;
+    }
+
+    public String getNameEs() {
+        return nameEs;
+    }
+
+    public void setNameEs(String nameEs) {
+        this.nameEs = nameEs;
+    }
 }
