@@ -74,14 +74,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- API Calls ---
 async function fetchUITexts() {
     try {
-        const response = await fetch(`http://localhost:8080/api/ui?lang=${CURRENT_LANG}`);
+        const response = await fetch(`/api/ui?lang=${CURRENT_LANG}`);
         uiTexts = await response.json();
     } catch (e) { console.error("Error loading UI texts:", e); }
 }
 
 async function fetchWarmupData() {
     try {
-        const response = await fetch(`http://localhost:8080/api/warmup?lang=${CURRENT_LANG}`);
+        const response = await fetch(`/api/warmup?lang=${CURRENT_LANG}`);
         sessionData = await response.json();
     } catch (e) { console.error("Error loading Warmup data:", e); }
 }
