@@ -4,6 +4,14 @@
 ![Backend](https://img.shields.io/badge/Backend-Java%20%7C%20Spring%20Boot-orange)
 ![Database](https://img.shields.io/badge/Database-SQLite-blue)
 
+## Live DEMO
+
+Try the application online:
+
+**[Open String Player Warmup](https://string-player-warmup.onrender.com/)**
+
+The application is hosted on Render's free tier, so the first request may take a few seconds while the server starts.
+
 ---
 
 ## Overview
