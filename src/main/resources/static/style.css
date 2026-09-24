@@ -281,3 +281,49 @@ ul {
         background-position: 0% 50%;
     }
 }
+
+/* ==========================================================================
+   Language Selector
+   ========================================================================== */
+
+.lang-selector {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 20px;
+    transition: opacity 0.3s ease;
+}
+
+.lang-btn {
+    background: #ffffff;
+    color: #4a5568;
+    border: 2px solid #cbd5e1;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease-in-out;
+}
+
+.lang-btn:hover:not(:disabled) {
+    border-color: #3b82f6;
+    color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
+}
+
+.lang-btn.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+.lang-selector.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}

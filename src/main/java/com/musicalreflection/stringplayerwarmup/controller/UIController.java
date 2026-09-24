@@ -1,10 +1,6 @@
 package com.musicalreflection.stringplayerwarmup.controller;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,9 +9,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import com.musicalreflection.stringplayerwarmup.repository.PhraseRepository;
 import com.musicalreflection.stringplayerwarmup.model.Phrase;
@@ -25,8 +18,11 @@ import com.musicalreflection.stringplayerwarmup.model.Phrase;
 @CrossOrigin(origins = "*")
 public class UIController {
 
-    @Autowired
-    private ConfigurableApplicationContext context;
+    private PhraseRepository phraseRepository;
+
+    public UIController(PhraseRepository phraseRepository) {
+        this.phraseRepository = phraseRepository;
+    }
 
     @GetMapping
     public Map<String, String> getUITexts(@RequestParam(value = "lang", defaultValue = "en") String lang) {
@@ -41,28 +37,6 @@ public class UIController {
         }
         return texts;
     }
-
-    // shutdown the server
-    @PostMapping("/shutdown")
-    public void shutdownApp() {
-        System.out.println("[SPRING] Shutdown command received from the frontend. Shutting down...");
-
-        // run on a separate thread to give spring time to return 200 OK
-        new Thread(() -> {
-            try {
-                Thread.sleep(800); // wait a bit
-            } catch (InterruptedException e) {
-                e.printStackTrace(); // log exception
-            }
-            
-            System.out.println("[SPRING] Closing the database and releasing port 8080...");
-            context.close(); // stop spring boot
-            System.exit(0);  // kill java process
-        }).start();
-    }
-
-    @Autowired
-    private PhraseRepository phraseRepository;
 
     // get a random phrase from the db
     @GetMapping("/phrase/random")

@@ -1,7 +1,7 @@
 package com.musicalreflection.stringplayerwarmup.service;
 
 import com.musicalreflection.stringplayerwarmup.dto.WarmupSessionDTO;
-import com.musicalreflection.stringplayerwarmup.dto.WarmupSessionDTO.CategoryRoutineDTO;
+import com.musicalreflection.stringplayerwarmup.dto.CategoryRoutineDTO;
 import com.musicalreflection.stringplayerwarmup.model.Category;
 import com.musicalreflection.stringplayerwarmup.model.Phrase;
 import com.musicalreflection.stringplayerwarmup.model.Video;
@@ -21,7 +21,6 @@ public class WarmupService {
     private final VideoRepository videoRepository;
     private final PhraseRepository phraseRepository;
 
-    // Constructor Injection
     public WarmupService(CategoryRepository categoryRepository, 
                          VideoRepository videoRepository, 
                          PhraseRepository phraseRepository) {

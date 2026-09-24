@@ -1,14 +1,19 @@
 // --- Application State ---
-const CURRENT_LANG = "pt"; // Change to "es" or "en" to test the system
+// fallback to English if nothing is saved yet
+let CURRENT_LANG = localStorage.getItem('app_lang') || 'en';
 let uiTexts = {};
 let sessionData = null;
 let currentExerciseIndex = 0;
 let timerInterval = null;
+let isRoutineRunning = false;
 
 // --- DOM Elements ---
 let screenStart, screenInstructions, screenOverview, screenRoutine, screenEnd;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // highlight active toggle on boot
+    updateLanguageButtonsUI();
+
     // Initialize DOM Screens
     screenStart = document.getElementById('screen-start');
     screenInstructions = document.getElementById('screen-instructions');
@@ -32,11 +37,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Setup Routine Triggers (Screen 3 -> 4)
     document.getElementById('btn-start-routine').addEventListener('click', () => {
+        isRoutineRunning = true;
+        // lock language toggle once session begins
+        toggleLanguageSelector(false);
+
         const ambientAudio = document.getElementById('ambient-audio');
-        ambientAudio.volume = 0.4; 
-        
-        // Handle play() promise rejection due to browser autoplay policies
-        ambientAudio.play().catch(e => console.log("O Chrome bloqueou o autoplay do áudio:", e));
+        if (ambientAudio) {
+            ambientAudio.volume = 0.4; 
+            ambientAudio.play().catch(e => console.log("Autoplay blocked:", e));
+        }
 
         currentExerciseIndex = 0;
         showScreen(screenRoutine);
@@ -44,49 +53,110 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // Setup End Screen Actions
-    document.getElementById('btn-repeat').addEventListener('click', () => showScreen(screenOverview)); 
+    document.getElementById('btn-repeat').addEventListener('click', () => {
+        isRoutineRunning = false;
+        // unlock language selector on repetition
+        toggleLanguageSelector(true);
+        showScreen(screenOverview);
+    });
+
     document.getElementById('btn-exit').addEventListener('click', () => {
-        // Stop audio playback immediately
+        // stop background audio
         const ambientAudio = document.getElementById('ambient-audio');
         if (ambientAudio) {
             ambientAudio.pause();
             ambientAudio.currentTime = 0;
         }
 
-        // Trigger backend shutdown
-        fetch('/api/ui/shutdown', { method: 'POST' })
-            .catch(err => console.log("a fechar..."));
+        // attempt to close window
+        window.open('', '_self', '');
+        window.close();
 
-        // Force window close by bypassing standard browser restrictions
+        // graceful fallback if browser prevents script from closing the tab
         setTimeout(() => {
-            window.open('', '_self', '');
-            window.close();
-            
-            // Fallback: Black out the screen if the window refuses to close
-            document.body.innerHTML = '<div style="background:#000; width:100vw; height:100vh;"></div>';
-        }, 100);
+            const goodbyeMsg = CURRENT_LANG === 'pt' 
+                ? "Sessão concluída. Podes fechar este separador!" 
+                : "Session complete. You may close this tab!";
+                
+            document.body.innerHTML = `
+                <div style="
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100vh; 
+                    background: #0f172a; 
+                    color: #f8fafc; 
+                    font-family: sans-serif;
+                    text-align: center;
+                    padding: 20px;">
+                    <h2 style="font-size: 1.8rem; margin-bottom: 10px;">🎻✨</h2>
+                    <p style="font-size: 1.2rem; opacity: 0.9;">${goodbyeMsg}</p>
+                </div>
+            `;
+        }, 150);
     });
 
     // Boot complete: Show first screen
     showScreen(screenStart);
 });
 
+// --- Language Selector ---
+
+async function setLanguage(lang) {
+    const selector = document.querySelector('.lang-selector');
+    if ((selector && selector.classList.contains('hidden')) || CURRENT_LANG === lang) return;
+
+    CURRENT_LANG = lang;
+    localStorage.setItem('app_lang', lang);
+    updateLanguageButtonsUI();
+
+    await Promise.all([fetchUITexts(), fetchWarmupData()]);
+    applyTranslations();
+    populateOverviewGrid();
+}
+
+function updateLanguageButtonsUI() {
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-lang-${CURRENT_LANG}`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+}
+
+function toggleLanguageSelector(visible) {
+    const selector = document.querySelector('.lang-selector');
+    if (!selector) return;
+
+    if (visible) {
+        selector.classList.remove('hidden');
+    } else {
+        selector.classList.add('hidden');
+    }
+}
+
 // --- API Calls ---
+
 async function fetchUITexts() {
     try {
         const response = await fetch(`/api/ui?lang=${CURRENT_LANG}`);
         uiTexts = await response.json();
-    } catch (e) { console.error("Error loading UI texts:", e); }
+    } catch (e) { 
+        console.error("Error loading UI texts:", e); 
+    }
 }
 
 async function fetchWarmupData() {
     try {
         const response = await fetch(`/api/warmup?lang=${CURRENT_LANG}`);
         sessionData = await response.json();
-    } catch (e) { console.error("Error loading Warmup data:", e); }
+    } catch (e) { 
+        console.error("Error loading Warmup data:", e); 
+    }
 }
 
 // --- Dynamic Injection ---
+
 function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -98,17 +168,17 @@ function applyTranslations() {
 
 function populateOverviewGrid() {
     const grid = document.getElementById('overview-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     
     if (sessionData && sessionData.routine) {
         sessionData.routine.forEach((ex, idx) => {
-            // Fallback for missing categoryName
-            const nomeExibicao = ex.categoryName ? ex.categoryName : `Categoria ${idx + 1}`;
+            const displayName = ex.categoryName ? ex.categoryName : `Category ${idx + 1}`;
             
             grid.innerHTML += `
                 <div class="overview-item">
                     <img src="https://img.youtube.com/vi/${ex.youtubeId}/hqdefault.jpg" alt="thumbnail">
-                    <p style="font-weight: bold; margin-top: 5px;">${nomeExibicao}</p>
+                    <p style="font-weight: bold; margin-top: 5px;">${displayName}</p>
                 </div>
             `;
         });
@@ -116,31 +186,29 @@ function populateOverviewGrid() {
 }
 
 // --- Display Logic ---
+
 function showScreen(screenElement) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     screenElement.classList.add('active');
 }
 
 function startExerciseCycle() {
-    if (currentExerciseIndex >= sessionData.routine.length) {
+    if (!sessionData || currentExerciseIndex >= sessionData.routine.length) {
         showScreen(screenEnd);
         return;
     }
 
     const currentExercise = sessionData.routine[currentExerciseIndex];
     
-    // Update texts
     document.getElementById('category-title').innerText = currentExercise.categoryName;
     document.getElementById('video-objective').innerText = currentExercise.videoObjective;
     
-    // Hide the empty video title element
-    document.getElementById('video-title').style.display = 'none'; 
+    const videoTitleElem = document.getElementById('video-title');
+    if (videoTitleElem) videoTitleElem.style.display = 'none'; 
     
-    // Mount Iframe with STRICT "no UI" parameters
     const iframe = document.getElementById('youtube-player');
     const youtubeUrl = `https://www.youtube.com/embed/${currentExercise.youtubeId}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&loop=1&playlist=${currentExercise.youtubeId}`;
     
-    // add a timestamp to force the browser to treat it as a new URL and reload the video
     iframe.src = youtubeUrl + `&t=${new Date().getTime()}`;
     
     startRestPhase();
@@ -179,7 +247,6 @@ function startRestPhase() {
 }
 
 function startActivePhase() {
-    // Expand video container
     document.getElementById('video-container').className = "size-large";
     
     const infoPanel = document.getElementById('info-panel');
@@ -190,47 +257,40 @@ function startActivePhase() {
     const timerDisplay = document.getElementById('timer-display');
     const phraseDisplay = document.getElementById('motivational-phrase');
     
-    phaseIndicator.innerText = uiTexts['ui.phase.active'];
+    phaseIndicator.innerText = uiTexts['ui.phase.active'] || "Active";
     phaseIndicator.style.color = "#4CAF50";
     timerDisplay.style.color = "#4CAF50";
     
-    // DYNAMIC PHRASE LOGIC
-    if (currentExerciseIndex === 4) { // the 5th exercise is the last
-        phraseDisplay.innerText = uiTexts['ui.phrase.final'];
+    // show final phrase on last exercise, random phrase otherwise
+    if (currentExerciseIndex === 4) {
+        phraseDisplay.innerText = uiTexts['ui.phrase.final'] || "";
         phraseDisplay.style.display = "block"; 
         setTimeout(() => phraseDisplay.className = "phrase phrase-active", 50);
     } else {
-        // Extract current language from URL or fallback to default
-        const currentLang = new URLSearchParams(window.location.search).get('lang') || 'en';
-        
-        // Fetch phrase from backend
-        fetch(`/api/ui/phrase/random?lang=pt`)
+        fetch(`/api/ui/phrase/random?lang=${CURRENT_LANG}`)
             .then(res => res.json())
             .then(data => {
-                if(data.phrase) {
+                if (data.phrase) {
                     phraseDisplay.innerText = data.phrase;
                     phraseDisplay.style.display = "block"; 
-                    // 50ms delay to ensure CSS transition applies smoothly
                     setTimeout(() => phraseDisplay.className = "phrase phrase-active", 50);
                 }
             })
             .catch(err => {
-                console.error("Erro a buscar a frase no backend:", err);
-                // Fallback to prevent empty text display
-                phraseDisplay.innerText = "Mantém o foco na tua postura!";
+                console.error("Failed to load phrase:", err);
+                phraseDisplay.innerText = CURRENT_LANG === 'en' 
+                    ? "Keep your focus on your posture!" 
+                    : "Mantém o foco na tua postura!";
                 phraseDisplay.style.display = "block"; 
                 setTimeout(() => phraseDisplay.className = "phrase phrase-active", 50);
             });
     }
 
-    // FORCE VIDEO RESTART
+    // restart video stream
     const currentExercise = sessionData.routine[currentExerciseIndex];
     const iframe = document.getElementById('youtube-player');
-    
-    // Player params: hide controls, disable keyboard, hide logo, disable fullscreen, hide related videos
     const urlLimpa = `https://www.youtube.com/embed/${currentExercise.youtubeId}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&fs=0&rel=0&iv_load_policy=3&loop=1&playlist=${currentExercise.youtubeId}`;
     
-    // Append timestamp to force iframe reload
     iframe.src = urlLimpa + `&t=${new Date().getTime()}`;
     
     let timeLeft = 20; 
